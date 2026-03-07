@@ -18,7 +18,9 @@
       "Bash(node -e \" const pkg = require\\(''@scalar/nextjs-api-reference/package.json''\\); console.log\\(pkg.version\\); \")",
       "Bash(npm run db:generate)",
       "Bash(printf '\\\\n')",
-      "Bash(npx drizzle-kit generate --config=drizzle.config.ts)"
+      "Bash(npx drizzle-kit generate --config=drizzle.config.ts)",
+      "Bash(psql postgresql://postgres:postgres@localhost:5432/postgres -c \"DROP DATABASE IF EXISTS argust_dev;\" -c \"CREATE DATABASE argust_dev;\")",
+      "Bash(npm run db:migrate)"
     ]
   }
 }

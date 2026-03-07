@@ -3,8 +3,10 @@ import { IVerificationService } from "@/domain/repositories";
 
 const LOG_PREFIX = `{app = "ssacb-chartbuilderapi"} |= "Client error from chartBuilderWeb"`;
 
-const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
+
+// sonar models have live web search built-in — no extra tool config needed
+const MODEL = "sonar";
 
 const SYSTEM_PROMPT = `You are a strict, objective fact-checking API. Verify the user's claim against live search results, prioritizing the trusted source vnexpress.net.
 RULES:
@@ -13,65 +15,64 @@ RULES:
 3. "NOT FOUND" RULE: If search lacks info to prove/disprove, output exactly "EVIDENCE_NOT_FOUND".
 4. QUOTE REQUIREMENT: Provide the verbatim source quote justifying your decision.
 
-Respond ONLY with a JSON object in this exact shape:
+Respond ONLY with a JSON object in this exact shape (no markdown, no extra text):
 {
   "status": "TRUE" | "FALSE" | "UNVERIFIED" | "EVIDENCE_NOT_FOUND",
   "explanation": "<concise explanation>",
   "source_quote": "<verbatim quote from source, or empty string if EVIDENCE_NOT_FOUND>"
 }`;
 
-interface GeminiApiResponse {
-  candidates?: Array<{
-    content?: {
-      parts?: Array<{ text?: string }>;
-    };
-    groundingMetadata?: {
-      groundingChunks?: Array<{
-        web?: { uri?: string };
-      }>;
-    };
+interface PerplexityApiResponse {
+  choices?: Array<{
+    message?: { content?: string };
   }>;
+  citations?: string[];
 }
 
-export class GeminiVerificationService implements IVerificationService {
+export class PerplexityVerificationService implements IVerificationService {
   async verifyClaim(claim: string): Promise<VerifyResult> {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.PERPLEXITY_API_KEY;
     if (!apiKey) {
-      const msg = "GEMINI_API_KEY is not configured";
+      const msg = "PERPLEXITY_API_KEY is not configured";
       console.error(`${LOG_PREFIX} | ${msg}`);
       throw new Error(msg);
     }
 
-    let raw: GeminiApiResponse;
+    let raw: PerplexityApiResponse;
 
     try {
-      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      const response = await fetch(PERPLEXITY_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: [{ role: "user", parts: [{ text: claim }] }],
-          tools: [{ google_search: {} }],
+          model: MODEL,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: claim },
+          ],
         }),
       });
 
       if (!response.ok) {
         const body = await response.text();
-        const msg = `Gemini API error ${response.status}: ${body}`;
+        const msg = `Perplexity API error ${response.status}: ${body}`;
         console.error(`${LOG_PREFIX} | ${msg}`);
         throw new Error(msg);
       }
 
-      raw = (await response.json()) as GeminiApiResponse;
+      raw = (await response.json()) as PerplexityApiResponse;
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      console.error(`${LOG_PREFIX} | Gemini fetch failed: ${msg}`);
+      console.error(`${LOG_PREFIX} | Perplexity fetch failed: ${msg}`);
       throw err;
     }
 
-    const text = raw.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    const text = raw.choices?.[0]?.message?.content ?? "";
     if (!text) {
-      const msg = "Gemini returned an empty response";
+      const msg = "Perplexity returned an empty response";
       console.error(`${LOG_PREFIX} | ${msg}`);
       throw new Error(msg);
     }
@@ -81,14 +82,13 @@ export class GeminiVerificationService implements IVerificationService {
       const jsonStr = text.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
       verdict = JSON.parse(jsonStr) as VerifyVerdict;
     } catch {
-      const msg = `Failed to parse Gemini JSON output: ${text}`;
+      const msg = `Failed to parse Perplexity JSON output: ${text}`;
       console.error(`${LOG_PREFIX} | ${msg}`);
       throw new Error(msg);
     }
 
-    const sources: string[] = (raw.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [])
-      .map((chunk) => chunk.web?.uri)
-      .filter((uri): uri is string => typeof uri === "string" && uri.length > 0);
+    // Perplexity returns citations as a top-level string array
+    const sources: string[] = (raw.citations ?? []).filter((u) => typeof u === "string");
 
     return { verdict, sources };
   }
