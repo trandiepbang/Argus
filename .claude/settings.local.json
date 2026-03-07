@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack)",
+      "Bash(npm install drizzle-orm pg)",
+      "Bash(npm install -D drizzle-kit @types/pg)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npm install)",
+      "Bash(./node_modules/typescript/bin/tsc --noEmit)",
+      "Bash(node node_modules/next/dist/bin/next --version)",
+      "Bash(npm install swagger-ui-react)",
+      "Bash(npm install -D @types/swagger-ui-react)",
+      "Bash(npm install openapi-types)",
+      "Bash(npm uninstall swagger-ui-react @types/swagger-ui-react)",
+      "Bash(npm install @scalar/nextjs-api-reference)",
+      "Bash(node -e \"const s = require\\(''@scalar/nextjs-api-reference''\\); console.log\\(Object.keys\\(s\\)\\)\")",
+      "Bash(node -e \"const s = require\\(''@scalar/nextjs-api-reference''\\); const r = s.ApiReference; console.log\\(r.toString\\(\\).slice\\(0, 300\\)\\)\")",
+      "Bash(node -e \" const pkg = require\\(''@scalar/nextjs-api-reference/package.json''\\); console.log\\(pkg.version\\); \")",
+      "Bash(npm run db:generate)",
+      "Bash(printf '\\\\n')",
+      "Bash(npx drizzle-kit generate --config=drizzle.config.ts)"
+    ]
+  }
+}
