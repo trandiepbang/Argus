@@ -1,7 +1,7 @@
 /**
  * Contract for per-user API rate limiting.
- * Current window is determined by the implementation (e.g. current hour).
+ * windowSeconds determines the bucket size (e.g. 1 for burst, 3600 for hourly).
  */
 export interface IRateLimitRepository {
-  increment(userId: string): Promise<number>;
+  increment(userId: string, windowSeconds: number): Promise<number>;
 }

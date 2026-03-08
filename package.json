@@ -15,7 +15,9 @@
   "dependencies": {
     "@scalar/nextjs-api-reference": "^0.10.0",
     "drizzle-orm": "^0.45.1",
+    "ioredis": "^5.10.0",
     "next": "16.1.6",
+    "next-auth": "^5.0.0-beta.30",
     "openapi-types": "^12.1.3",
     "pg": "^8.20.0",
     "react": "19.2.3",

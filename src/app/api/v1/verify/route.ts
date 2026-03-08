@@ -1,25 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VerifyClaimUseCase } from "@/application/use-cases/verify/verify-claim.use-case";
 import { container } from "@/infrastructure/container";
-import { auth } from "@/auth";
 
 const LOG_PREFIX = `{app = "ssacb-chartbuilderapi"} |= "Client error from chartBuilderWeb"`;
-const RATE_LIMIT_MAX = 20;
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.email ?? "anonymous";
-
-  // Rate limit check
-  const count = await container.rateLimitRepository.increment(userId);
-  if (count > RATE_LIMIT_MAX) {
-    return NextResponse.json(
-      { success: false, error: `Rate limit exceeded — max ${RATE_LIMIT_MAX} requests per hour` },
-      { status: 429, headers: { "Retry-After": "3600" } },
-    );
-  }
-
   let body: unknown;
+
   try {
     body = await req.json();
   } catch {
