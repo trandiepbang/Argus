@@ -6,21 +6,31 @@ const LOG_PREFIX = `{app = "ssacb-chartbuilderapi"} |= "Client error from chartB
 const PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions";
 
 // sonar models have live web search built-in — no extra tool config needed
-const MODEL = "sonar";
+const getModel = () => process.env.PERPLEXITY_MODEL ?? "sonar";
 
-const SYSTEM_PROMPT = `You are a strict, objective fact-checking API. Verify the user's claim against live search results, prioritizing the trusted source vnexpress.net.
+function getTrustedSources(): string[] {
+  const raw = process.env.TRUSTED_SOURCES ?? "vnexpress.net";
+  return raw.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
+function buildSystemPrompt(sources: string[]): string {
+  const sourceList = sources.map((s) => `- ${s}`).join("\n");
+  return `You are a strict, objective fact-checking API. Verify the user's claim using ONLY the following trusted news sources:
+${sourceList}
+
 RULES:
-1. STRICT GROUNDING: Use ONLY retrieved information.
-2. NO OUTSIDE KNOWLEDGE.
-3. "NOT FOUND" RULE: If search lacks info to prove/disprove, output exactly "EVIDENCE_NOT_FOUND".
-4. QUOTE REQUIREMENT: Provide the verbatim source quote justifying your decision.
+1. STRICT GROUNDING: Search and use ONLY information from the listed sources above.
+2. NO OUTSIDE KNOWLEDGE. Do not use any knowledge beyond what is retrieved from these sources.
+3. "NOT FOUND" RULE: If the listed sources lack sufficient information to prove or disprove the claim, output status "EVIDENCE_NOT_FOUND".
+4. QUOTE REQUIREMENT: Provide the verbatim quote from the source that justifies your decision.
 
 Respond ONLY with a JSON object in this exact shape (no markdown, no extra text):
 {
   "status": "TRUE" | "FALSE" | "UNVERIFIED" | "EVIDENCE_NOT_FOUND",
-  "explanation": "<concise explanation>",
+  "explanation": "<concise explanation citing the source>",
   "source_quote": "<verbatim quote from source, or empty string if EVIDENCE_NOT_FOUND>"
 }`;
+}
 
 interface PerplexityApiResponse {
   choices?: Array<{
@@ -48,11 +58,12 @@ export class PerplexityVerificationService implements IVerificationService {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: MODEL,
+          model: getModel(),
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
+            { role: "system", content: buildSystemPrompt(getTrustedSources()) },
             { role: "user", content: claim },
           ],
+          search_domain_filter: getTrustedSources(),
         }),
       });
 

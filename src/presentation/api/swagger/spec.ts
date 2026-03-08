@@ -82,6 +82,24 @@ export const openApiSpec: OpenAPIV3.Document = {
               "application/json": { schema: { $ref: "#/components/schemas/Error" } },
             },
           },
+          "401": {
+            description: "Unauthorized — Google sign-in required",
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/Error" } },
+            },
+          },
+          "429": {
+            description: "Rate limit exceeded — max 20 requests per hour",
+            headers: {
+              "Retry-After": {
+                schema: { type: "integer", example: 3600 },
+                description: "Seconds until the rate limit window resets",
+              },
+            },
+            content: {
+              "application/json": { schema: { $ref: "#/components/schemas/Error" } },
+            },
+          },
           "500": {
             description: "AI provider or server error",
             content: {
