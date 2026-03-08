@@ -15,7 +15,6 @@ export async function checkDatabaseConnection() {
 
 export async function checkRedisConnection() {
   try {
-    await redis.connect();
     await redis.ping();
     console.log("[startup] Redis connection OK");
   } catch (err) {

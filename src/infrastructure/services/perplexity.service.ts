@@ -24,10 +24,12 @@ RULES:
 3. "NOT FOUND" RULE: If the listed sources lack sufficient information to prove or disprove the claim, output status "EVIDENCE_NOT_FOUND".
 4. QUOTE REQUIREMENT: Provide the verbatim quote from the source that justifies your decision.
 
+LANGUAGE: Write the "explanation" field in Vietnamese.
+
 Respond ONLY with a JSON object in this exact shape (no markdown, no extra text):
 {
   "status": "TRUE" | "FALSE" | "UNVERIFIED" | "EVIDENCE_NOT_FOUND",
-  "explanation": "<concise explanation citing the source>",
+  "explanation": "<giải thích ngắn gọn bằng tiếng Việt, trích dẫn nguồn>",
   "source_quote": "<verbatim quote from source, or empty string if EVIDENCE_NOT_FOUND>"
 }`;
 }
