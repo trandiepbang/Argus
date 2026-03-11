@@ -23,3 +23,18 @@ export async function checkRedisConnection() {
     process.exit(1);
   }
 }
+
+export function displayTrustedSources() {
+  const raw = process.env.TRUSTED_SOURCES ?? "";
+  const sources = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  
+  if (sources.length === 0) {
+    console.warn("[startup] No trusted sources configured");
+    return;
+  }
+  
+  console.log(`[startup] Loaded ${sources.length} trusted source(s):`);
+  sources.forEach((source, index) => {
+    console.log(`  ${index + 1}. ${source}`);
+  });
+}

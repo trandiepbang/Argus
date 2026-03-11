@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 const BURST_MAX = 2;          // max 2 requests per second
 const BURST_WINDOW = 1;       // 1 second
-const HOURLY_MAX = 20;        // max 20 requests per hour
+const HOURLY_MAX = 200;        // max 20 requests per hour
 const HOURLY_WINDOW = 3600;   // 1 hour
 
 export default auth(async (req) => {
@@ -44,6 +44,8 @@ export default auth(async (req) => {
       { status: 429, headers: { "Retry-After": "3600" } },
     );
   }
+
+  return NextResponse.next();
 });
 
 export const config = {

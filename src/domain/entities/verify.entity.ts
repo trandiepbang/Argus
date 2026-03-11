@@ -2,7 +2,7 @@ export interface VerifyClaimInput {
   claim: string;
 }
 
-export type VerifyStatus = "TRUE" | "FALSE" | "UNVERIFIED" | "EVIDENCE_NOT_FOUND";
+export type VerifyStatus = "TRUE" | "FALSE";
 
 /** Provider-agnostic verdict — no AI provider names here */
 export interface VerifyVerdict {

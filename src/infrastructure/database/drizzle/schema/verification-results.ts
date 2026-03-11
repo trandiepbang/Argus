@@ -3,8 +3,6 @@ import { json, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-cor
 export const verifyStatusEnum = pgEnum("verify_status", [
   "TRUE",
   "FALSE",
-  "UNVERIFIED",
-  "EVIDENCE_NOT_FOUND",
 ]);
 
 export const verificationResults = pgTable("verification_results", {
