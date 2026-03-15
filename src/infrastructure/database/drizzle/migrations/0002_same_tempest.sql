@@ -1,0 +1,1 @@
+ALTER TYPE "public"."verify_engine" ADD VALUE 'unverifiable';

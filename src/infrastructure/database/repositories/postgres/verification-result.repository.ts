@@ -12,6 +12,7 @@ function toEntity(r: VerificationResultRecord): VerificationRecord {
     explanation: r.explanation,
     source_quote: r.sourceQuote,
     sources: r.sources as string[],
+    engine: r.engine,
     createdAt: r.createdAt,
   };
 }
@@ -25,9 +26,10 @@ export class PostgresVerificationResultRepository implements IVerificationResult
       .values({
         claim: input.claim,
         status: result.verdict.status,
-        explanation: result.verdict.explanation,
-        sourceQuote: result.verdict.source_quote,
+        explanation: result.verdict.explanation ?? "",
+        sourceQuote: result.verdict.source_quote ?? "",
         sources: result.sources,
+        engine: result.engine,
       })
       .returning();
     return toEntity(record);

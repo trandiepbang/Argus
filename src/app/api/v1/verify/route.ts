@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { VerifyClaimUseCase } from "@/application/use-cases/verify/verify-claim.use-case";
 import { container } from "@/infrastructure/container";
 
-const LOG_PREFIX = `{app = "ssacb-chartbuilderapi"} |= "Client error from chartBuilderWeb"`;
+const LOG_PREFIX = ``;
 
 export async function POST(req: NextRequest) {
   let body: unknown;

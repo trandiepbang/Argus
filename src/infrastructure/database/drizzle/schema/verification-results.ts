@@ -5,6 +5,14 @@ export const verifyStatusEnum = pgEnum("verify_status", [
   "FALSE",
 ]);
 
+export const verifyEngineEnum = pgEnum("verify_engine", [
+  "perplexity",
+  "gemini",
+  "conflict",
+  "filtered",
+  "unverifiable",
+]);
+
 export const verificationResults = pgTable("verification_results", {
   id: uuid("id").primaryKey().defaultRandom(),
   claim: text("claim").notNull(),
@@ -12,6 +20,7 @@ export const verificationResults = pgTable("verification_results", {
   explanation: text("explanation").notNull(),
   sourceQuote: text("source_quote").notNull(),
   sources: json("sources").$type<string[]>().notNull().default([]),
+  engine: verifyEngineEnum("engine").notNull().default("perplexity"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

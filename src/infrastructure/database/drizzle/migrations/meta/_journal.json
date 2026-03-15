@@ -8,6 +8,20 @@
       "when": 1772871972781,
       "tag": "0000_clean_wonder_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773498300869,
+      "tag": "0001_furry_arclight",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773541087921,
+      "tag": "0002_same_tempest",
+      "breakpoints": true
     }
   ]
 }

@@ -25,6 +25,7 @@ export class VerifyClaimUseCase {
         explanation: result.verdict.explanation,
         source_quote: result.verdict.source_quote,
         sources: result.sources,
+        engine: result.engine,
       },
     };
   }
